@@ -90,8 +90,8 @@ For example, the Kafka section of the file is as follows:
   spec:
     replicas: 3
     image:
-      application: confluentinc/cp-server:7.0.1
-      init: confluentinc/confluent-init-container:2.2.0-1
+      application: confluentinc/cp-server:7.1.0
+      init: confluentinc/confluent-init-container:2.3.0
     dataVolumeCapacity: 10Gi
     metricReporter:
       enabled: true
@@ -138,15 +138,15 @@ app.
 
 The producer app is packaged and deployed as a pod on Kubernetes. The required
 topic is defined as a KafkaTopic custom resource in
-``$TUTORIAL_HOME/secure-producer-app-data.yaml``.
+``$TUTORIAL_HOME/producer-app-data.yaml``.
 
-   ## Note: If you are deploying a single node dev cluster, then use this yaml file:
+Note: If you are deploying a single node dev cluster, then use this yaml file:
 
-   ::
+::
   
-     kubectl apply -f $TUTORIAL_HOME/producer-app-data-singlenode.yaml
+  kubectl apply -f $TUTORIAL_HOME/producer-app-data-singlenode.yaml
 
-The ``$TUTORIAL_HOME/secure-producer-app-data.yaml`` defines the ``elastic-0``
+The ``$TUTORIAL_HOME/producer-app-data.yaml`` defines the ``elastic-0``
 topic as follows:
 
 ::
@@ -166,11 +166,11 @@ Deploy the producer app:
 
 ``kubectl apply -f $TUTORIAL_HOME/producer-app-data.yaml``
 
-   ## Note: If you are deploying a single node dev cluster, then use this yaml file:
+Note: If you are deploying a single node dev cluster, then use this yaml file:
 
-   ::
+::
   
-     kubectl apply -f $TUTORIAL_HOME/producer-app-data-singlenode.yaml
+  kubectl apply -f $TUTORIAL_HOME/producer-app-data-singlenode.yaml
 
 Validate in Control Center
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
