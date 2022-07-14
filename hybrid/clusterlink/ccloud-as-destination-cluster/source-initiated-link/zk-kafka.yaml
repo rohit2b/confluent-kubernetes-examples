@@ -6,8 +6,8 @@ metadata:
 spec:
   replicas: 3
   image:
-    application: confluentinc/cp-zookeeper:7.2.0
-    init: confluentinc/confluent-init-container:2.4.0
+    application: confluentinc/cp-zookeeper:7.1.0
+    init: confluentinc/confluent-init-container:2.3.0
   dataVolumeCapacity: 10Gi
   logVolumeCapacity: 10Gi
 ---
@@ -19,21 +19,10 @@ metadata:
 spec:
   replicas: 3
   image:
-    application: confluentinc/cp-server:7.2.0
-    init: confluentinc/confluent-init-container:2.4.0
+    application: confluentinc/cp-server:7.1.0
+    init: confluentinc/confluent-init-container:2.3.0
   dataVolumeCapacity: 10Gi
   listeners:
-    external:
-      externalAccess:
-        type: loadBalancer
-        loadBalancer:
-          bootstrapPrefix: cloudclink-src-bootstrap
-          brokerPrefix: cloudclink-src
-          domain: platformops.dev.gcp.devel.cpdev.cloud
-      authentication:
-        type: plain
-        jaasConfig:
-          secretRef: credential
     internal:
       authentication:
         type: plain
