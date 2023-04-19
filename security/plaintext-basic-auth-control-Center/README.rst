@@ -33,7 +33,7 @@ the tutorial files:
 
 ::
    
-  export TUTORIAL_HOME=<Tutorial directory>/plaintext-basic-auth-control-Center
+  export TUTORIAL_HOME=<Tutorial directory>/security/plaintext-basic-auth-control-Center
 
 ===============================
 Deploy Confluent for Kubernetes
@@ -98,8 +98,8 @@ For example, the Kafka section of the file is as follows:
   spec:
     replicas: 3
     image:
-      application: confluentinc/cp-server:7.1.0
-      init: confluentinc/confluent-init-container:2.3.0
+      application: confluentinc/cp-server:7.3.0
+      init: confluentinc/confluent-init-container:2.5.0
     dataVolumeCapacity: 10Gi
     metricReporter:
       enabled: true
