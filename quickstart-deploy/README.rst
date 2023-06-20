@@ -52,7 +52,7 @@ Deploy Confluent for Kubernetes
 
    ::
 
-     helm upgrade --install operator confluentinc/confluent-for-kubernetes
+     helm upgrade --install confluent-operator confluentinc/confluent-for-kubernetes --namespace confluent
   
 #. Check that the Confluent For Kubernetes pod comes up and is running:
 
@@ -86,12 +86,12 @@ For example, the Kafka section of the file is as follows:
   kind: Kafka
   metadata:
     name: kafka
-    namespace: operator
+    namespace: confluent
   spec:
     replicas: 3
     image:
-      application: confluentinc/cp-server:7.2.0
-      init: confluentinc/confluent-init-container:2.4.0
+      application: confluentinc/cp-server:7.3.0
+      init: confluentinc/confluent-init-container:2.5.0
     dataVolumeCapacity: 10Gi
     metricReporter:
       enabled: true
@@ -203,5 +203,5 @@ Shut down Confluent Platform and the data:
 
 ::
 
-  helm delete confluent-operator
+  helm uninstall confluent-operator
   

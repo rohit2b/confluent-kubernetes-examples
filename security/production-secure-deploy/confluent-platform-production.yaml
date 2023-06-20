@@ -6,8 +6,8 @@ metadata:
 spec:
   replicas: 3
   image:
-    application: confluentinc/cp-zookeeper:7.2.0
-    init: confluentinc/confluent-init-container:2.4.0
+    application: confluentinc/cp-zookeeper:7.3.0
+    init: confluentinc/confluent-init-container:2.5.0
   dataVolumeCapacity: 10Gi
   logVolumeCapacity: 10Gi
   authentication:
@@ -25,8 +25,8 @@ metadata:
 spec:
   replicas: 3
   image:
-    application: confluentinc/cp-server:7.2.0
-    init: confluentinc/confluent-init-container:2.4.0
+    application: confluentinc/cp-server:7.3.0
+    init: confluentinc/confluent-init-container:2.5.0
   dataVolumeCapacity: 10Gi
   tls:
     secretRef: tls-group1
@@ -46,9 +46,9 @@ spec:
       externalAccess:
         type: loadBalancer
         loadBalancer:
-          domain: ## Domain
-          bootstrapPrefix:
-          brokerPrefix:
+          domain: my.domain
+          brokerPrefix: rb
+          bootstrapPrefix: rb
       tls:
         enabled: true
   authorization:
@@ -64,8 +64,8 @@ spec:
       externalAccess:
         type: loadBalancer
         loadBalancer:
-          domain: ## Domain
-          prefix:
+          domain: my.domain
+          prefix: rb-mds
       provider:
         type: ldap
         ldap:
@@ -80,10 +80,12 @@ spec:
             groupMemberAttribute: member
             groupMemberAttributePattern: CN=(.*),DC=test,DC=com
             groupSearchBase: dc=test,dc=com
+            groupSearchScope: 1
             userNameAttribute: cn
             userMemberOfAttributePattern: CN=(.*),DC=test,DC=com
             userObjectClass: organizationalRole
             userSearchBase: dc=test,dc=com
+            userSearchScope: 1
   dependencies:
     kafkaRest:
       authentication:
@@ -107,15 +109,15 @@ metadata:
 spec:
   replicas: 2
   image:
-    application: confluentinc/cp-server-connect:7.2.0
-    init: confluentinc/confluent-init-container:2.4.0
+    application: confluentinc/cp-server-connect:7.3.0
+    init: confluentinc/confluent-init-container:2.5.0
   tls:
     secretRef: tls-group1
   externalAccess:
     type: loadBalancer
     loadBalancer:
-      domain: ## Domain
-      prefix:
+      domain: my.domain
+      prefix: rb-connect
   authorization:
     type: rbac
   dependencies:
@@ -146,15 +148,15 @@ metadata:
 spec:
   replicas: 1
   image:
-    application: confluentinc/cp-schema-registry:7.2.0
-    init: confluentinc/confluent-init-container:2.4.0
+    application: confluentinc/cp-schema-registry:7.3.0
+    init: confluentinc/confluent-init-container:2.5.0
   tls:
     secretRef: tls-group1
   externalAccess:
     type: loadBalancer
     loadBalancer:
-      domain: ## Domain
-      prefix:
+      domain: my.domain
+      prefix: rb-sr
   authorization:
     type: rbac
   dependencies:
@@ -185,15 +187,15 @@ metadata:
 spec:
   replicas: 1
   image:
-    application: confluentinc/cp-kafka-rest:7.2.0
-    init: confluentinc/confluent-init-container:2.4.0
+    application: confluentinc/cp-kafka-rest:7.3.0
+    init: confluentinc/confluent-init-container:2.5.0
   tls:
     secretRef: tls-group1
   externalAccess:
     type: loadBalancer
     loadBalancer:
-      domain: ## Domain
-      prefix:
+      domain: my.domain
+      prefix: rb-krp
   authorization:
     type: rbac
   dependencies:
@@ -228,16 +230,16 @@ metadata:
 spec:
   replicas: 2
   image:
-    application: confluentinc/cp-ksqldb-server:7.2.0
-    init: confluentinc/confluent-init-container:2.4.0
+    application: confluentinc/cp-ksqldb-server:7.3.0
+    init: confluentinc/confluent-init-container:2.5.0
   dataVolumeCapacity: 10Gi
   authorization:
     type: rbac
   externalAccess:
     type: loadBalancer
     loadBalancer:
-      domain: ## Domain
-      prefix:
+      domain: my.domain
+      prefix: rb-ksql
   tls:
     secretRef: tls-group1
   dependencies:
@@ -274,16 +276,16 @@ spec:
         failureThreshold: 5
         timeoutSeconds: 500 
   image:
-    application: confluentinc/cp-enterprise-control-center:7.2.0
-    init: confluentinc/confluent-init-container:2.4.0
+    application: confluentinc/cp-enterprise-control-center:7.3.0
+    init: confluentinc/confluent-init-container:2.5.0
   dataVolumeCapacity: 10Gi
   authorization:
     type: rbac
   externalAccess:
     type: loadBalancer
     loadBalancer:
-      domain: ## Domain
-      prefix:
+      domain: my.domain
+      prefix: rb-c3
   tls:
     secretRef: tls-group1
   dependencies:

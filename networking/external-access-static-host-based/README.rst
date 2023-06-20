@@ -142,7 +142,6 @@ Confluent For Kubernetes will generate those for Confluent Server from
        -extfile \
        <(echo "[server_ext]"; echo "extendedKeyUsage=serverAuth,clientAuth"; echo "subjectAltName=DNS:*.$DOMAIN")
 
-#. 
 
 #. Create a Kubernetes secret using the provided PEM files:
  
@@ -268,8 +267,6 @@ use Istio Gateway.
 Deploy Ingress Controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-
-
 #. Add the Kubernetes NginX Helm repo and update the repo.
 
    ::
@@ -291,10 +288,22 @@ Create Ingress Resource
 Create an Ingress resource that includes a collection of rules that the Ingress
 controller uses to route the inbound traffic to Kafka.
 
-#. In the resource file, ``ingress-service-hostbased.yaml``, replace ``$DOMAIN`` 
+#. In the resource file, ``ingress-service-hostbased.yaml``, 
+   ``ingress-service-hostbased-kafka-zk.yaml``, and 
+   ``ingress-service-hostbased-other-components.yaml``, replace ``$DOMAIN`` 
    with the value of your ``$DOMAIN``.
 
-#. Create the Ingress resource:
+#. Create the Ingress resources. Ingress resource for Kafka has 
+   ``ssl-passthrough`` enabled. Other component resources do not have 
+   ``ssl-passthrough`` enabled:
+
+   ::
+
+     kubectl apply -f $TUTORIAL_HOME/ingress-service-hostbased-kafka-zk.yaml
+     
+     kubectl apply -f $TUTORIAL_HOME/ingress-service-hostbased-other-components.yaml
+
+#. Alternatively, if you want to enable ``ssl-passthrough`` for all components, run:
 
    ::
 
@@ -391,7 +400,9 @@ as well as a keystore and a truststore.
        -name kafka-client \
        -passout pass:mystorepassword
 
-#. Create the Kafka client's truststore from the CA. This truststore allows the client to trust the broker's certificate, which is necessary for transport encryption.
+#. Create the Kafka client's truststore from the CA. This truststore allows the 
+   client to trust the broker's certificate, which is necessary for transport 
+   encryption.
 
    ::
 
@@ -402,7 +413,7 @@ as well as a keystore and a truststore.
        -deststorepass mystorepassword \
        -deststoretype pkcs12
 
-Create the Topic
+Create a Topic
 ^^^^^^^^^^^^^^^^
 
 #. Inspect the ``$TUTORIAL_HOME/topic.yaml`` file, which defines the ``elastic-0`` topic as follows:
@@ -431,18 +442,18 @@ Create Client Properties File
 
 Create a configuration file for the client called ``kafka.properties``.
 
-  ::
+::
 
-    cat <<-EOF > $TUTORIAL_HOME/client/kafka.properties
-    bootstrap.servers=kafka.$DOMAIN:443
-    security.protocol=SSL
-    ssl.truststore.location=$TUTORIAL_HOME/client/client.truststore.p12
-    ssl.truststore.password=mystorepassword
-    ssl.truststore.type=PKCS12
-    ssl.keystore.location=$TUTORIAL_HOME/client/client.keystore.p12
-    ssl.keystore.password=mystorepassword
-    ssl.keystore.type=PKCS12
-    EOF
+  cat <<-EOF > $TUTORIAL_HOME/client/kafka.properties
+  bootstrap.servers=kafka.$DOMAIN:443
+  security.protocol=SSL
+  ssl.truststore.location=$TUTORIAL_HOME/client/client.truststore.p12
+  ssl.truststore.password=mystorepassword
+  ssl.truststore.type=PKCS12
+  ssl.keystore.location=$TUTORIAL_HOME/client/client.keystore.p12
+  ssl.keystore.password=mystorepassword
+  ssl.keystore.type=PKCS12
+  EOF
 
 Remember that in production, all properties files with sensitive credentials 
 should be locked down with elevated permissions and encrypted with 
@@ -484,7 +495,7 @@ Shut down Confluent Platform and the data:
 
 ::
 
-  kubectl delete -f $TUTORIAL_HOME/producer-app-data.yaml
+  kubectl delete -f $TUTORIAL_HOME/topic.yaml
   
 ::
 
@@ -504,7 +515,7 @@ Shut down Confluent Platform and the data:
   
 ::
 
-  helm delete nginx-operator
+  helm delete ingress-nginx
 
 ::
 
