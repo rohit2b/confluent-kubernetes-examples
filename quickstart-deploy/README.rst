@@ -41,6 +41,18 @@ the tutorial files:
 Deploy Confluent for Kubernetes
 ===============================
 
+#. Create the namespace to use.
+
+   .. sourcecode:: bash
+   
+      kubectl create namespace confluent
+
+#. Set this namespace to default for your Kubernetes context.
+
+   .. sourcecode:: bash
+   
+      kubectl config set-context --current --namespace confluent
+
 #. Set up the Helm Chart:
 
    ::
@@ -90,11 +102,14 @@ For example, the Kafka section of the file is as follows:
   spec:
     replicas: 3
     image:
-      application: confluentinc/cp-server:7.3.0
-      init: confluentinc/confluent-init-container:2.5.0
+      application: confluentinc/cp-server:7.4.0
+      init: confluentinc/confluent-init-container:2.6.0
     dataVolumeCapacity: 10Gi
     metricReporter:
       enabled: true
+    dependencies:
+      zookeeper:
+        endpoint: zookeeper.confluent.svc.cluster.local:2181
   ---
   
 =========================
