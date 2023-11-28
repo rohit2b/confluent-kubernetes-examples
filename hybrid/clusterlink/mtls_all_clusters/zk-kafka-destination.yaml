@@ -1,0 +1,88 @@
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: Zookeeper
+metadata:
+  name: zookeeper
+  namespace: destination
+spec:
+  replicas: 3
+  image:
+    application: confluentinc/cp-zookeeper:7.5.0
+    init: confluentinc/confluent-init-container:2.7.0
+  dataVolumeCapacity: 10Gi
+  logVolumeCapacity: 10Gi
+  authentication:
+    type: mtls
+  tls:
+    secretRef: destination-tls-zk
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: Kafka
+metadata:
+  name: kafka
+  namespace: destination
+spec:
+  replicas: 3
+  image:
+    application: confluentinc/cp-server:7.5.0
+    init: confluentinc/confluent-init-container:2.7.0
+  dataVolumeCapacity: 10Gi
+  tls:
+    secretRef: destination-tls-kafka
+  listeners:
+    internal:
+      authentication:
+        type: mtls
+      tls:
+        enabled: true
+    external:
+      authentication:
+        type: mtls
+      tls:
+        enabled: true
+  services:
+    kafkaRest:
+      authentication:
+        type: mtls
+      tls:
+        enabled: true
+  ## dependencies are not required, will have default set
+  dependencies:
+    zookeeper:
+      endpoint: zookeeper.destination.svc.cluster.local:2182
+      authentication:
+        type: mtls
+      tls:
+        enabled: true
+  passwordEncoder:
+    secretRef: password-encoder-secret
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaRestClass
+metadata:
+  name: destination-kafka-rest
+  namespace: destination
+spec:
+  kafkaClusterRef:
+    name: kafka
+  kafkaRest:
+    endpoint: https://kafka.destination.svc.cluster.local:8090
+    authentication:
+      type: mtls
+    tls: 
+      secretRef: destination-tls-kafka
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaRestClass
+metadata:
+  name: source-kafka-rest
+  namespace: destination
+spec:
+  kafkaClusterRef:
+    name: kafka
+  kafkaRest:
+    endpoint: https://kafka.source.svc.cluster.local:8090
+    authentication:
+      type: mtls
+    tls: 
+      secretRef: source-tls-kafka
