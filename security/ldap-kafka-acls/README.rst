@@ -121,6 +121,7 @@ Provide authentication credentials
    
      kubectl create secret generic credential \
        --from-file=plain-users.json=$TUTORIAL_HOME/creds/creds-kafka-sasl-users.json \
+       --from-file=kafka-server-plain-interbroker.txt=$TUTORIAL_HOME/creds/kafka-server-plain-interbroker.txt \
        --from-file=plain.txt=$TUTORIAL_HOME/creds/creds-client-kafka-sasl-user.txt \
        --from-file=ldap.txt=$TUTORIAL_HOME/creds/ldap.txt \
        --namespace confluent

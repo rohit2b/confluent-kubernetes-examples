@@ -25,6 +25,13 @@ spec:
   dataVolumeCapacity: 10Gi
   metricReporter:
     enabled: true
+    tls:
+      enabled: true
+      secretRef: tls-group1
+    authentication:
+      type: plain
+      jaasConfig:
+        secretRef: credential
   tls:
     secretRef: tls-group1
   listeners:  
