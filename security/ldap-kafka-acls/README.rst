@@ -1,12 +1,12 @@
 Deploy Confluent Platform
 =========================
 
-In this workflow scenario, you'll set up Control Center with LDAP based authentication to monitor and connect to a Confluent Platform with no security.
+In this workflow scenario, you'll set up Kafka with an internal listener using LDAP based authentication.
 
 The goal for this scenario is for you to:
 
-* Configure LDAP server for Control Center authentication (no RBAC).
-* Quickly set up the complete Confluent Platform on the Kubernetes.
+* Deploy LDAP server
+* Deploy Kafka, with ZK and Control Center
 * Configure a producer to generate sample data.
 
 
@@ -33,7 +33,7 @@ the tutorial files:
 
 ::
    
-  export TUTORIAL_HOME=<Tutorial directory>/security/plaintext-ldap-auth-control-Center
+  export TUTORIAL_HOME=/Users/rbakhshi/dev/confluent/rohit-cfk-examples/security/plaintext-ldap-auth-control-Center
 
 ===============================
 Deploy Confluent for Kubernetes
@@ -99,47 +99,32 @@ Note that it is assumed that your Kubernetes cluster has a ``confluent`` namespa
    
      exit 
 
-
-========================================
-Review Confluent Platform configurations
-========================================
-
-You install Confluent Platform components as custom resources (CRs). 
-
-You can configure all Confluent Platform components as custom resources. In this
-tutorial, you will configure all components in a single file and deploy all
-components with one ``kubectl apply`` command.
-
-The entire Confluent Platform is configured in one configuration file:
-``$TUTORIAL_HOME/confluent-platform-ccc-ldap.yamll``
-
-In this configuration file, there is a custom Resource configuration spec for
-each Confluent Platform component - replicas, image to use, resource
-allocations.
-
-For example, the Kafka section of the file is as follows:
-
-::
-  
-  ---
-  apiVersion: platform.confluent.io/v1beta1
-  kind: Kafka
-  metadata:
-    name: kafka
-    namespace: operator
-  spec:
-    replicas: 3
-    image:
-      application: confluentinc/cp-server:7.5.0
-      init: confluentinc/confluent-init-container:2.7.0
-    dataVolumeCapacity: 10Gi
-    metricReporter:
-      enabled: true
-  ---
-  
 =========================
 Deploy Confluent Platform
 =========================
+
+Provide component TLS certificates
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+   
+    kubectl create secret generic tls-group1 \
+      --from-file=fullchain.pem=$TUTORIAL_HOME/../../assets/certs/generated/server.pem \
+      --from-file=cacerts.pem=$TUTORIAL_HOME/../../assets/certs/generated/cacerts.pem \
+      --from-file=privkey.pem=$TUTORIAL_HOME/../../assets/certs/generated/server-key.pem \
+      --namespace confluent
+
+Provide authentication credentials
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+   ::
+   
+     kubectl create secret generic credential \
+       --from-file=plain-users.json=$TUTORIAL_HOME/creds/creds-kafka-sasl-users.json \
+       --from-file=plain.txt=$TUTORIAL_HOME/creds/creds-client-kafka-sasl-user.txt \
+       --from-file=ldap.txt=$TUTORIAL_HOME/creds/ldap.txt \
+       --namespace confluent
+
 
 #. Deploy Confluent Platform with the above configuration:
 

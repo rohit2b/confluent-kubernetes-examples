@@ -25,32 +25,39 @@ spec:
   dataVolumeCapacity: 10Gi
   metricReporter:
     enabled: true
----
-apiVersion: platform.confluent.io/v1beta1
-kind: Connect
-metadata:
-  name: connect
-  namespace: confluent
-spec:
-  replicas: 1
-  image:
-    application: confluentinc/cp-server-connect:7.5.0
-    init: confluentinc/confluent-init-container:2.7.0
-  dependencies:
-    kafka:
-      bootstrapEndpoint: kafka:9071
----
-apiVersion: platform.confluent.io/v1beta1
-kind: KsqlDB
-metadata:
-  name: ksqldb
-  namespace: confluent
-spec:
-  replicas: 1
-  image:
-    application: confluentinc/cp-ksqldb-server:7.5.0
-    init: confluentinc/confluent-init-container:2.7.0
-  dataVolumeCapacity: 10Gi
+  tls:
+    secretRef: tls-group1
+  listeners:  
+    internal:
+      authentication:
+        type: ldap
+        jaasConfig:
+          secretRef: credential
+      tls:
+        enabled: true  
+  authorization:
+    type: simple
+    superUsers:
+    - User:kafka
+  identityProvider:
+    type: ldap
+    ldap:
+      address: ldap://ldap.confluent.svc.cluster.local:389
+      authentication:
+        type: simple
+        simple:
+          secretRef: credential
+      configurations:
+        groupNameAttribute: cn
+        groupObjectClass: group
+        groupMemberAttribute: member
+        groupMemberAttributePattern: CN=(.*),DC=test,DC=com
+        groupSearchBase: dc=test,dc=com
+        userNameAttribute: cn
+        userMemberOfAttributePattern: CN=(.*),DC=test,DC=com
+        userObjectClass: organizationalRole
+        userSearchBase: dc=test,dc=com
+# https://docs.confluent.io/operator/current/co-authenticate-kafka.html#configure-ak-for-server-side-sasl-plain-with-ldap-authentication
 ---
 apiVersion: platform.confluent.io/v1beta1
 kind: ControlCenter
@@ -58,8 +65,6 @@ metadata:
   name: controlcenter
   namespace: confluent
 spec:
-  license:
-    globalLicense: true
   configOverrides:
     log4j: 
       - log4j.rootLogger=DEBUG, stdout
@@ -92,38 +97,3 @@ spec:
         roleMemberAttribute: "memberUid"
         roleObjectClass: "posixGroup" 
         userPasswordAttribute: "userPassword"
-
-  dependencies:
-    schemaRegistry:
-      url: http://schemaregistry.confluent.svc.cluster.local:8081
-    ksqldb:
-    - name: ksqldb
-      url: http://ksqldb.confluent.svc.cluster.local:8088
-    connect:
-    - name: connect
-      url: http://connect.confluent.svc.cluster.local:8083
----
-apiVersion: platform.confluent.io/v1beta1
-kind: SchemaRegistry
-metadata:
-  name: schemaregistry
-  namespace: confluent
-spec:
-  replicas: 1
-  image:
-    application: confluentinc/cp-schema-registry:7.5.0
-    init: confluentinc/confluent-init-container:2.7.0
----
-apiVersion: platform.confluent.io/v1beta1
-kind: KafkaRestProxy
-metadata:
-  name: kafkarestproxy
-  namespace: confluent
-spec:
-  dependencies:
-    schemaRegistry:
-      url: http://schemaregistry.confluent.svc.cluster.local:8081
-  image:
-    application: confluentinc/cp-kafka-rest:7.5.0
-    init: confluentinc/confluent-init-container:2.7.0
-  replicas: 1
